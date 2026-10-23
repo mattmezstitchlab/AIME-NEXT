@@ -6,7 +6,7 @@ export function projetVide(titre = 'Nouveau projet', maintenant = new Date()): P
   const iso = maintenant.toISOString();
   return {
     format: 'aime-projet', version: VERSION_PROJET, id: nouvelId('p'), titre, creeLe: iso, modifieLe: iso,
-    contenus: {}, medias: {}, relations: [], style: { designSystem: 'original-iris' },
+    contenus: {}, medias: {}, relations: [], style: { designSystem: 'aime-original' },
     supports: [{ id: nouvelId('s'), type: 'site', titre, pages: [{ id: nouvelId('pg'), titre: 'Accueil', blocs: [] }] }],
   };
 }

@@ -25,3 +25,16 @@ Le document de fondation (Claude Docs « AIME NEXT — Fondations ») décrit le
 ## Format d'un projet
 
 `format: 'aime-projet'`, `version: 1`. Une version plus récente est refusée, jamais tronquée. Les migrations futures s'ajoutent dans `migrations.ts` (`migrations[n]` passe de n à n + 1).
+
+## Le Constructeur (étape 3)
+
+| Dossier | Rôle |
+| --- | --- |
+| `src/design` | Les 4 Design Systems d'AIME, traduits en variables CSS (`--ds-*`) |
+| `src/rendu` | Un composant d'affichage par type de bloc ; la page en grille ou en colonne (téléphone) ; le même rendu pour l'édition, l'aperçu et l'export HTML |
+| `src/editeur` | La scène (sélection, glisser, poignée, clavier), le « + », le panneau contextuel, « Vos informations », l'export HTML |
+| `src/app` | « Mes projets », l'ouverture d'un projet, l'enregistrement automatique |
+
+Gestes : glisser pour déplacer, poignée pour redimensionner ; au clavier, flèches pour déplacer, Maj + flèches pour redimensionner, Suppr pour retirer, Échap pour désélectionner ; Ctrl Z et Ctrl Maj Z partout hors des champs. Une place occupée n'est jamais prise : le bloc reste où il était.
+
+Tests : `npm test` (cœur, « + », gestes, stockage) et `npm run parcours` (navigateur réel : glisser, onde, annuler, rechargement, aperçu, exports, téléphone).

@@ -7,6 +7,17 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) proce
   const c = await b.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true }); const p = await c.newPage(); const err = [];
   p.on('pageerror', e => err.push(e.message)); p.on('console', m => { if (m.type() === 'error') err.push(m.text()); });
   await p.goto(B, { waitUntil: 'networkidle' });
+  ok(/AIME/.test(await p.textContent('h1')) && (await p.$$('.z-etape')).length === 6, 'Page Zéro : l\'orbe et les six étapes');
+  await p.click('text=Découvrir Le Monde AIME'); await p.waitForSelector('.w-curseur input');
+  await p.fill('.w-curseur input', '9'); await p.waitForTimeout(400);
+  ok(!!(await p.$('.w-piste .r-frise')), 'Le Monde AIME : à 9 colonnes, la date devient une frise');
+  await p.fill('.w-champ input >> nth=0', 'Inès & Sam'); await p.waitForTimeout(200);
+  ok(/Inès & Sam/.test(await p.textContent('.w-trois .r-t')), 'Le Monde AIME : le nom écrit une fois apparaît dans le titre');
+  await p.click('.w-faces button >> nth=2'); ok(/traiteur/i.test(await p.textContent('.w-voit')), 'Le Monde AIME : la perspective du traiteur');
+  await p.screenshot({ path: O + '0-monde.png' });
+  await p.click('text=Créer mon projet avec cet exemple'); await p.waitForSelector('.e-bloc'); await p.waitForTimeout(400);
+  ok(/Inès & Sam/.test(await p.inputValue('.a-titre')) && /Inès & Sam/.test(await p.textContent('.e-bloc .r-t')), 'la découverte devient le projet : « Inès & Sam » dans le Constructeur');
+  await p.goto(B + '#/projets', { waitUntil: 'networkidle' }); await p.waitForTimeout(300);
   ok(/Mes projets/.test(await p.textContent('h1')), 'Mes projets');
   await p.click('text=Essayer la démonstration'); await p.waitForSelector('.e-bloc'); await p.waitForTimeout(600);
   ok((await p.$$('.e-bloc')).length === 9, 'démonstration : 9 blocs');
@@ -67,7 +78,12 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) proce
   ok(!err.length, 'aucune erreur JavaScript ' + err.slice(0, 3).join(' | '));
   // téléphone : le constructeur lui-même
   const t = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); const q = await t.newPage();
-  await q.goto(B, { waitUntil: 'networkidle' }); await q.click('text=Essayer la démonstration'); await q.waitForSelector('.e-bloc'); await q.waitForTimeout(500);
+  await q.goto(B, { waitUntil: 'networkidle' });
+  ok(await q.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'téléphone : Page Zéro sans défilement horizontal');
+  await q.goto(B + '#/monde', { waitUntil: 'networkidle' }); await q.waitForTimeout(300);
+  ok(await q.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'téléphone : Le Monde AIME sans défilement horizontal');
+  await q.screenshot({ path: O + '8-tel-monde.png', fullPage: true });
+  await q.goto(B + '#/projets', { waitUntil: 'networkidle' }); await q.click('text=Essayer la démonstration'); await q.waitForSelector('.e-bloc'); await q.waitForTimeout(500);
   ok(await q.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'téléphone : pas de défilement horizontal');
   await q.screenshot({ path: O + '6-tel-constructeur.png' });
   await q.tap('[data-bloc="b-lieu"]'); await q.waitForTimeout(300); await q.screenshot({ path: O + '7-tel-panneau.png' });

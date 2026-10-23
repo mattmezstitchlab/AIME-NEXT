@@ -38,3 +38,14 @@ Le document de fondation (Claude Docs « AIME NEXT — Fondations ») décrit le
 Gestes : glisser pour déplacer, poignée pour redimensionner ; au clavier, flèches pour déplacer, Maj + flèches pour redimensionner, Suppr pour retirer, Échap pour désélectionner ; Ctrl Z et Ctrl Maj Z partout hors des champs. Une place occupée n'est jamais prise : le bloc reste où il était.
 
 Tests : `npm test` (cœur, « + », gestes, stockage) et `npm run parcours` (navigateur réel : glisser, onde, annuler, rechargement, aperçu, exports, téléphone).
+
+## Les trois expériences (étape 4)
+
+| Adresse | Écran | Ce qu'on y fait |
+| --- | --- | --- |
+| `#/` | Page Zéro | L'orbe, puis six étapes au défilement (point, ligne, relation, grille, composition, projet). Deux actions : découvrir Le Monde AIME, reprendre son travail |
+| `#/monde` | Le Monde AIME | Trois chapitres manipulables avec les vrais blocs : la forme suit la largeur, saisi une fois vu partout, six perspectives (le cube). « Créer mon projet » transforme ce qu'on vient d'écrire en premier projet |
+| `#/projets` | Mes projets | Nouveau, démonstration, import, liste |
+| `#/projet/<id>` | Constructeur | L'édition |
+
+`src/experiences` ne contient que de l'affichage : aucune règle métier, aucun stockage propre.

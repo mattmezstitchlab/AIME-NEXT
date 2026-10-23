@@ -2,7 +2,7 @@
 import type { CSSProperties } from 'react';
 import { exiger, formePour, ordreLecture, basDe, type Bloc, type Page as PageT } from '../core';
 import { RENDUS, type ContexteRendu } from './blocs';
-import { variables } from '../design/systemes';
+import { variables, type Apparence } from '../design/systemes';
 
 export function RenduBloc({ bloc, x }: { bloc: Bloc; x: ContexteRendu }) {
   const def = exiger(bloc.type);
@@ -17,8 +17,8 @@ export function placeCss(b: Bloc): CSSProperties {
 
 /* En colonne, chaque bloc garde sa forme et prend la hauteur de son contenu ; une image garde une proportion de photo. */
 
-export function Page({ page, x, mise, designSystem }: { page: PageT; x: ContexteRendu; mise: 'grille' | 'colonne'; designSystem: string }) {
-  const style = variables(designSystem) as CSSProperties;
+export function Page({ page, x, mise, apparence }: { page: PageT; x: ContexteRendu; mise: 'grille' | 'colonne'; apparence: Apparence }) {
+  const style = variables(apparence) as CSSProperties;
   if (mise === 'colonne') return (
     <div className="r-page r-colonne" style={style}>
       {ordreLecture(page.blocs).map(b => (

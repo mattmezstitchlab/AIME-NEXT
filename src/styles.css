@@ -37,6 +37,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .a-ds{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--doux)}
 .a-ds select,.c-champ select,.c-champ input,.c-champ textarea,.c-etape input{background:var(--carte2);border:1px solid var(--trait);border-radius:8px;padding:7px 9px;color:var(--encre);min-height:36px;width:100%}
 .a-ds select{width:auto}
+.a-mode{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--trait);border-radius:12px}.a-mode .a-btn{border:0;min-height:32px}
 .a-plus{position:relative}.a-plus summary{list-style:none}.a-plus summary::-webkit-details-marker{display:none}
 .a-menu{position:absolute;right:0;top:calc(100% + 6px);display:grid;min-width:260px;padding:6px;border-radius:12px;background:var(--carte);border:1px solid var(--trait);box-shadow:0 16px 40px rgba(0,0,0,.4);z-index:40}
 .a-menu button{text-align:left;background:none;border:0;border-radius:8px;padding:10px 12px;cursor:pointer}.a-menu button:hover{background:var(--carte2)}

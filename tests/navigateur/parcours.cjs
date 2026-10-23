@@ -43,14 +43,15 @@ const ok = (c, m) => { console.log((c ? '  ✓ ' : '  ✗ ') + m); if (!c) proce
   ok((await p.$$('.e-bloc')).length === 10 && !!(await p.$('.c-panneau h2:has-text("Lieu")')), '« + » Lieu : ajouté, sélectionné, panneau ouvert');
   ok((await p.$$('.c-panneau .c-partage')).length === 1 && /Montré par 2 blocs/.test(await p.textContent('.c-panneau .c-partage')), 'le nouveau Lieu montre le château déjà saisi (2 blocs)');
   // Design System
-  await p.selectOption('.a-ds select', 'aime-editorial'); await p.waitForTimeout(200);
-  ok((await p.$eval('.e-page', e => getComputedStyle(e).backgroundColor)) === 'rgb(241, 233, 221)', 'Design System Éditorial : fond crème');
-  await p.screenshot({ path: O + '4-editorial.png' });
+  ok((await p.$eval('.e-page', e => getComputedStyle(e).backgroundColor)) === 'rgb(10, 10, 12)', 'style AIME, mode sombre par défaut');
+  await p.click('.a-mode button:has-text("Clair")'); await p.waitForTimeout(200);
+  ok((await p.$eval('.e-page', e => getComputedStyle(e).backgroundColor)) === 'rgb(250, 250, 247)', 'style AIME, mode clair');
+  await p.screenshot({ path: O + '4-clair.png' });
   // enregistrement puis rechargement
   await p.waitForFunction(() => /Enregistré à/.test(document.querySelector('.a-statut').textContent), null, { timeout: 5000 }).catch(() => {});
   ok(/Enregistré à/.test(await p.textContent('.a-statut')), 'statut : ' + await p.textContent('.a-statut'));
   const url = p.url(); await p.reload({ waitUntil: 'networkidle' }); await p.waitForSelector('.e-bloc'); await p.waitForTimeout(400);
-  ok(p.url() === url && (await p.$$('.e-bloc')).length === 10 && /18 septembre 2027/.test(await p.textContent('.r-frise .r-meta')) && (await p.$eval('.e-page', e => getComputedStyle(e).backgroundColor)) === 'rgb(241, 233, 221)', 'rechargement : 10 blocs, date et style retrouvés');
+  ok(p.url() === url && (await p.$$('.e-bloc')).length === 10 && /18 septembre 2027/.test(await p.textContent('.r-frise .r-meta')) && (await p.$eval('.e-page', e => getComputedStyle(e).backgroundColor)) === 'rgb(250, 250, 247)', 'rechargement : 10 blocs, date et mode retrouvés');
   // aperçu téléphone
   await p.click('text=Aperçu'); await p.waitForSelector('.a-telephone'); await p.waitForTimeout(300);
   ok(!!(await p.$('.a-telephone .r-colonne')), 'aperçu téléphone : lecture en colonne');

@@ -30,7 +30,7 @@ Le document de fondation (Claude Docs « AIME NEXT — Fondations ») décrit le
 
 | Dossier | Rôle |
 | --- | --- |
-| `src/design` | Les 4 Design Systems d'AIME, traduits en variables CSS (`--ds-*`) |
+| `src/design` | Le style AIME (sombre et clair), traduit en variables CSS ; voir `docs/STYLE.md` |
 | `src/rendu` | Un composant d'affichage par type de bloc ; la page en grille ou en colonne (téléphone) ; le même rendu pour l'édition, l'aperçu et l'export HTML |
 | `src/editeur` | La scène (sélection, glisser, poignée, clavier), le « + », le panneau contextuel, « Vos informations », l'export HTML |
 | `src/app` | « Mes projets », l'ouverture d'un projet, l'enregistrement automatique |

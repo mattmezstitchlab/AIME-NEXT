@@ -6,13 +6,13 @@ import { useRef, type CSSProperties, type KeyboardEvent, type PointerEvent } fro
 import { basDe, exiger, formePour, ordreLecture, type Bloc, type Magasin, type Page, type Place } from '../core';
 import { RenduBloc, placeCss } from '../rendu/Page';
 import type { ContexteRendu } from '../rendu/blocs';
-import { variables } from '../design/systemes';
+import { variables, type Apparence } from '../design/systemes';
 import { deplacer, libre, memePlace, redimensionner } from './gestes';
 
 type Geste = { id: string; mode: 'deplacer' | 'taille'; x0: number; y0: number; depart: Place; case: number; bouge: boolean };
 
-export function Scene({ page, magasin, x, designSystem, selection, choisir, grilleVisible, dire }: {
-  page: Page; magasin: Magasin; x: ContexteRendu; designSystem: string; selection: string | null;
+export function Scene({ page, magasin, x, apparence, selection, choisir, grilleVisible, dire }: {
+  page: Page; magasin: Magasin; x: ContexteRendu; apparence: Apparence; selection: string | null;
   choisir: (id: string | null) => void; grilleVisible: boolean; dire: (m: string) => void;
 }) {
   const grille = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export function Scene({ page, magasin, x, designSystem, selection, choisir, gril
   };
 
   return (
-    <div className="r-page e-page" style={variables(designSystem) as CSSProperties} onPointerDown={() => choisir(null)}>
+    <div className="r-page e-page" style={variables(apparence) as CSSProperties} onPointerDown={() => choisir(null)}>
       <div ref={grille} className={`r-grille e-grille${grilleVisible ? ' e-repere' : ''}`} style={{ gridTemplateRows: `repeat(${rangees}, var(--case))` }}>
         {ordreLecture(page.blocs).map(b => {
           const def = exiger(b.type);

@@ -1,37 +1,64 @@
 /**
- * Les quatre directions d'AIME (aime-design-system 3.0, reprises d'AIMESTUDIO design/catalogue).
- * Un Design System change la présentation, jamais le contenu. Il ne produit que des variables CSS
- * tirées de cette table : aucune valeur venue d'un fichier n'entre dans le CSS.
+ * Le style AIME : un seul style, complet, en deux modes (sombre par défaut, clair).
+ * Il fixe les couleurs, l'échelle des textes, les espacements, les rayons, les ombres et les états.
+ * Un style change la présentation, jamais le contenu. Il ne produit que des variables CSS tirées de cette table :
+ * aucune valeur venue d'un fichier n'entre dans le CSS.
+ *
+ * Les trois autres directions d'AIMESTUDIO (Minimal Clair, Éditorial Magazine, Pro Atelier) ne sont plus proposées.
+ * Un projet qui les nomme encore s'affiche dans le style AIME.
  */
-export type DesignSystem = {
-  id: string; nom: string; mode: 'clair' | 'sombre';
-  c1: string; c2: string; fond: string; encre: string;
-  rayon: number; titre: string; texte: string; graisse: number; approche: string;
+export type Mode = 'sombre' | 'clair';
+export type Apparence = { designSystem: string; mode?: Mode | undefined };
+
+type Palette = {
+  fond: string; surface: string; surface2: string; trait: string; encre: string; doux: string;
+  accent: string; accentTexte: string; surAccent: string; rose: string; ombre: string;
 };
 
-const INTER = '"Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
+/** Les contrastes ont été vérifiés (WCAG AA) : encre, doux et accentTexte sur fond et sur surface ; surAccent sur accent. */
+export const PALETTES: Record<Mode, Palette> = {
+  sombre: {
+    fond: '#0A0A0C', surface: '#131318', surface2: '#1C1C23', trait: '#2B2B35', encre: '#EDEDF0', doux: '#A9A9B6',
+    accent: '#8B7BFF', accentTexte: '#A99BFF', surAccent: '#0A0A0C', rose: '#FB7185',
+    ombre: '0 1px 0 rgba(255,255,255,.04) inset, 0 12px 32px rgba(0,0,0,.35)',
+  },
+  clair: {
+    fond: '#FAFAF7', surface: '#F1F0EC', surface2: '#E8E6E0', trait: '#D6D3CB', encre: '#141418', doux: '#55555F',
+    accent: '#5F4FD6', accentTexte: '#4F3FC4', surAccent: '#FFFFFF', rose: '#C2416B',
+    ombre: '0 1px 2px rgba(20,20,24,.06), 0 10px 28px rgba(20,20,24,.08)',
+  },
+};
 
-export const SYSTEMES: readonly DesignSystem[] = [
-  { id: 'aime-original', nom: 'Original Iris', mode: 'sombre', c1: '#7866F2', c2: '#C46B8B', fond: '#08080A', encre: '#F5F5F7', rayon: 18, titre: 'Outfit, "Inter Tight", system-ui, sans-serif', texte: INTER, graisse: 600, approche: '-0.02em' },
-  { id: 'aime-minimal', nom: 'Minimal Clair', mode: 'clair', c1: '#1B1B17', c2: '#D9CBB4', fond: '#F6F4EF', encre: '#151512', rayon: 4, titre: INTER, texte: INTER, graisse: 500, approche: '-0.045em' },
-  { id: 'aime-editorial', nom: 'Éditorial Magazine', mode: 'clair', c1: '#99472C', c2: '#C9B79C', fond: '#F1E9DD', encre: '#241E18', rayon: 2, titre: '"Instrument Serif", Georgia, "Times New Roman", serif', texte: INTER, graisse: 400, approche: '-0.012em' },
-  { id: 'aime-pro', nom: 'Pro Atelier', mode: 'sombre', c1: '#3F8EF4', c2: '#1C6E80', fond: '#071017', encre: '#EEF4F9', rayon: 10, titre: '"Space Grotesk", "Inter Tight", system-ui, sans-serif', texte: INTER, graisse: 600, approche: '-0.028em' },
-];
+export const STYLE_AIME = {
+  id: 'aime-original', nom: 'AIME',
+  titre: '"Cal Sans", Outfit, "Inter Variable", Inter, system-ui, sans-serif',
+  texte: '"Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif',
+  /** la signature irisée : réservée aux repères d'identité (frise, anneaux, centre du réseau), jamais au texte */
+  iris: 'conic-gradient(from 200deg, #FB7185, #F59E0B, #7C5CFF, #22D3EE, #FB7185)',
+} as const;
 
-export function systeme(id: string): DesignSystem {
-  return SYSTEMES.find(s => s.id === id) ?? SYSTEMES[0]!;
+export const MODE_PAR_DEFAUT: Mode = 'sombre';
+
+export function modeDe(a: Apparence): Mode {
+  return a.mode ?? MODE_PAR_DEFAUT;
 }
 
 /** Les variables CSS d'une page, à poser sur son conteneur. */
-export function variables(id: string): Record<string, string> {
-  const s = systeme(id);
+export function variables(a: Apparence): Record<string, string> {
+  const m = modeDe(a), c = PALETTES[m];
   return {
-    '--ds-c1': s.c1, '--ds-c2': s.c2, '--ds-fond': s.fond, '--ds-encre': s.encre,
-    '--ds-surface': `color-mix(in srgb, ${s.encre} 6%, ${s.fond})`,
-    '--ds-trait': `color-mix(in srgb, ${s.encre} 16%, ${s.fond})`,
-    '--ds-doux': `color-mix(in srgb, ${s.encre} 74%, ${s.fond})`,
-    '--ds-rayon': `${s.rayon}px`, '--ds-titre': s.titre, '--ds-texte': s.texte,
-    '--ds-graisse': String(s.graisse), '--ds-approche': s.approche,
-    'color-scheme': s.mode === 'sombre' ? 'dark' : 'light',
+    // couleurs
+    '--ds-fond': c.fond, '--ds-surface': c.surface, '--ds-surface2': c.surface2, '--ds-trait': c.trait,
+    '--ds-encre': c.encre, '--ds-doux': c.doux, '--ds-c1': c.accent, '--ds-c1-texte': c.accentTexte, '--ds-sur-c1': c.surAccent,
+    '--ds-c2': c.rose, '--ds-iris': STYLE_AIME.iris, '--ds-ombre': c.ombre,
+    '--ds-c1-survol': `color-mix(in srgb, ${c.accent} 86%, ${c.encre})`,
+    // typographie : une échelle, relative à la largeur de la page (unités de conteneur)
+    '--ds-titre': STYLE_AIME.titre, '--ds-texte': STYLE_AIME.texte, '--ds-graisse': '600', '--ds-approche': '-0.02em',
+    '--t-1': '12px', '--t-2': '14px', '--t-3': '16px', '--t-4': 'clamp(17px, 1.6cqw, 20px)', '--t-5': 'clamp(20px, 2.4cqw, 30px)',
+    '--t-6': 'clamp(26px, 4cqw, 48px)', '--t-7': 'clamp(34px, 6cqw, 80px)', '--t-8': 'clamp(42px, 8cqw, 112px)',
+    // espacements et rayons
+    '--e-1': '4px', '--e-2': '8px', '--e-3': '12px', '--e-4': '16px', '--e-5': '24px', '--e-6': '32px', '--e-7': '48px',
+    '--ds-rayon': '18px', '--r-controle': '12px', '--r-pastille': '999px',
+    'color-scheme': m === 'sombre' ? 'dark' : 'light',
   };
 }

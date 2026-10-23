@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { creerMagasin, exiger, liste, nouvelId, type Bloc, type Commande, type Projet } from '../core';
 import type { Depot } from '../stockage/depot';
 import { exporter } from '../stockage/archive';
-import { SYSTEMES } from '../design/systemes';
+import { modeDe } from '../design/systemes';
 import { Page } from '../rendu/Page';
 import { Scene } from './Scene';
 import { Panneau } from './Panneau';
@@ -102,11 +102,11 @@ export function Constructeur({ initial, medias, depot, retour }: { initial: Proj
         <span className="a-sep" />
         <button type="button" className="a-btn" disabled={!magasin.peutAnnuler()} onClick={() => magasin.annuler()} title="Ctrl Z">Annuler</button>
         <button type="button" className="a-btn" disabled={!magasin.peutRetablir()} onClick={() => magasin.retablir()} title="Ctrl Maj Z">Rétablir</button>
-        <label className="a-ds"><span>Style</span>
-          <select value={projet.style.designSystem} onChange={e => executer({ type: 'changerDesignSystem', designSystem: e.target.value })}>
-            {SYSTEMES.map(s => <option key={s.id} value={s.id}>{s.nom}</option>)}
-          </select>
-        </label>
+        <div className="a-mode" role="group" aria-label="Mode du style AIME">
+          {(['sombre', 'clair'] as const).map(m => (
+            <button key={m} type="button" className="a-btn" aria-pressed={modeDe(projet.style) === m} onClick={() => modeDe(projet.style) !== m && executer({ type: 'changerMode', mode: m })}>{m === 'sombre' ? 'Sombre' : 'Clair'}</button>
+          ))}
+        </div>
         <button type="button" className="a-btn" aria-pressed={grille} onClick={() => setGrille(g => !g)}>Grille</button>
         <button type="button" className="a-btn" aria-pressed={fiche} onClick={() => { setFiche(f => !f); choisir(null); }}>Vos informations</button>
         <button type="button" className="a-btn a-fort" onClick={() => setApercu('telephone')}>Aperçu</button>
@@ -119,7 +119,7 @@ export function Constructeur({ initial, medias, depot, retour }: { initial: Proj
       </header>
 
       <main className="a-scene" aria-label="Composition">
-        <Scene page={page} magasin={magasin} x={x} designSystem={projet.style.designSystem} selection={selection} choisir={id => { choisir(id); if (id) setFiche(false); }} grilleVisible={grille} dire={dire} />
+        <Scene page={page} magasin={magasin} x={x} apparence={projet.style} selection={selection} choisir={id => { choisir(id); if (id) setFiche(false); }} grilleVisible={grille} dire={dire} />
         {!page.blocs.length && <p className="a-vide">Touchez le « + » pour ajouter un premier bloc.</p>}
       </main>
 
@@ -146,7 +146,7 @@ export function Constructeur({ initial, medias, depot, retour }: { initial: Proj
             <button type="button" className="a-btn a-fort" onClick={() => setApercu(null)} autoFocus>Revenir à l'édition</button>
           </div>
           <div className={`a-ecran a-${apercu}`}>
-            <Page page={page} x={{ ...x, edition: false }} mise={apercu === 'telephone' ? 'colonne' : 'grille'} designSystem={projet.style.designSystem} />
+            <Page page={page} x={{ ...x, edition: false }} mise={apercu === 'telephone' ? 'colonne' : 'grille'} apparence={projet.style} />
           </div>
         </div>
       )}

@@ -14,7 +14,7 @@ export function Panneau({ projet, pageId, bloc, magasin, choisir, dire, changerI
   changerImage: (bloc: Bloc) => void;
 }) {
   const def = exiger(bloc.type);
-  const auto = formePour(def, bloc.place.w).forme;
+  const forme = formePour(def, bloc.place.w, bloc.forme).forme;
   const c = contenuDe(projet, bloc);
   const exe = (cmd: Parameters<Magasin['executer']>[0], cle?: string) => { const r = magasin.executer(cmd, cle ? { cle } : {}); if (!r.ok) dire(r.raison); return r.ok; };
   const props = (p: Record<string, unknown>, cle?: string) => exe({ type: 'modifierBloc', page: pageId, id: bloc.id, props: p }, cle);
@@ -23,16 +23,7 @@ export function Panneau({ projet, pageId, bloc, magasin, choisir, dire, changerI
 
   return (
     <aside className="c-panneau" aria-label={`Réglages du bloc ${def.nom}`}>
-      <header className="c-tete"><h2>{def.nom}</h2><button type="button" className="c-mini" aria-label="Fermer les réglages" onClick={() => choisir(null)}>×</button></header>
-
-      {def.formes.length > 1 && (
-        <Champ label="Forme" aide="En automatique, la forme suit la largeur du bloc.">{id => (
-          <select id={id} value={bloc.forme ?? ''} onChange={e => exe({ type: 'modifierBloc', page: pageId, id: bloc.id, forme: e.target.value || null })}>
-            <option value="">Automatique ({auto})</option>
-            {def.formes.map(f => <option key={f.forme} value={f.forme}>{f.forme} (dès {f.aPartirDe} col.)</option>)}
-          </select>
-        )}</Champ>
-      )}
+      <header className="c-tete"><h2>{def.nom}{def.formes.length > 1 && <small className="c-forme"> · {forme}</small>}</h2><button type="button" className="c-mini" aria-label="Fermer les réglages" onClick={() => choisir(null)}>×</button></header>
 
       {compatibles.length > 1 && (
         <Champ label="Montre">{id => (
@@ -78,7 +69,7 @@ export function Panneau({ projet, pageId, bloc, magasin, choisir, dire, changerI
             })}
           </fieldset>
         )}
-        <p className="c-info">{bloc.place.w} colonnes × {bloc.place.h} rangées. Flèches : déplacer ; Maj + flèches : redimensionner.</p>
+        <p className="c-info">{bloc.place.w} colonnes × {bloc.place.h} rangées. Agrandissez le bloc pour changer sa forme. Flèches : déplacer ; Maj + flèches : redimensionner ; Entrée : écrire.</p>
       </div>
 
       <div className="c-groupe"><h3>Verrous</h3>

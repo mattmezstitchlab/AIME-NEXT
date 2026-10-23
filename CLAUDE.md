@@ -1,7 +1,7 @@
 # AIME NEXT — consignes pour les agents
 
 - Langue : français partout (code, commentaires, messages, documentation).
-- Trois écrans seulement : Page Zéro, Le Monde AIME, Constructeur. Pas de Bureau, pas de fenêtres, pas de studio par discipline, pas de Carte postale.
+- Une seule page : on y découvre et on y crée (l'intention en haut, la page qui se compose et s'édite dessous). Pas de Bureau, pas de fenêtres, pas de studio par discipline, pas de Carte postale, pas d'écran supplémentaire sans validation de Matt.
 - Toute modification d'un projet passe par une commande (`src/core/commandes`) ; chaque commande a son inverse. Jamais de mutation directe.
 - Un seul état (`src/core/magasin.ts`), un seul stockage (IndexedDB, `src/stockage`), un seul rendu.
 - Un bloc ne contient pas l'information : il la montre (`source` → `contenus`). Un nouveau type de bloc se déclare dans le registre, rien d'autre ne change.

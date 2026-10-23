@@ -79,3 +79,6 @@
  .w-cube{--s:180px}.w-cube-scene{min-height:260px}
 }
 @media (prefers-reduced-motion:reduce){.x-orbe i{animation:none}.z-etape{opacity:1;transform:none}.z-etape *{transition:none!important}.w-cube{transition:none}}
+.w-tourne{animation:tourne 28s linear infinite}
+@keyframes tourne{from{transform:rotateX(-14deg) rotateY(0)}to{transform:rotateX(-14deg) rotateY(360deg)}}
+@media (prefers-reduced-motion:reduce){.w-tourne{animation:none;transform:rotateX(-14deg) rotateY(24deg)}}

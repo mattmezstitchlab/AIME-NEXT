@@ -1,99 +1,51 @@
 /**
- * L'application : la Page Zéro, Le Monde AIME, « Mes projets » et le Constructeur.
- * Adresses : #/ (Page Zéro), #/monde, #/projets, #/projet/<id>.
+ * AIME tient sur une seule page. Elle s'ouvre sur le projet demandé (#/p/<id>), sinon sur le dernier projet
+ * de cet appareil, sinon sur l'exemple « Léa & Marc », qui ne devient un projet qu'au premier geste.
  */
 import { useEffect, useState } from 'react';
-import { nouvelId, projetVide, type Projet } from '../core';
-import { ouvrirDepot, type Depot, type Resume } from '../stockage/depot';
-import { importer } from '../stockage/archive';
+import { nouvelId, type Projet } from '../core';
+import { ouvrirDepot, type Depot } from '../stockage/depot';
 import { demoLeaEtMarc } from '../demo/lea-et-marc';
-import { Constructeur } from '../editeur/Constructeur';
-import { PageZero } from '../experiences/PageZero';
-import { Monde } from '../experiences/Monde';
+import { PageUnique } from './PageUnique';
 
-type Route = { ecran: 'zero' } | { ecran: 'monde' } | { ecran: 'projets' } | { ecran: 'projet'; id: string };
-function route(): Route {
-  const h = location.hash;
-  const m = /^#\/projet\/([a-z0-9][a-z0-9_-]{2,63})$/.exec(h);
-  if (m) return { ecran: 'projet', id: m[1]! };
-  if (h === '#/monde') return { ecran: 'monde' };
-  if (h === '#/projets') return { ecran: 'projets' };
-  return { ecran: 'zero' };
+type Ouvert = { projet: Projet; medias: Map<string, Blob>; enregistre: boolean };
+
+function idDemande(): string | null {
+  const m = /^#\/p\/([a-z0-9][a-z0-9_-]{2,63})$/.exec(location.hash);
+  return m ? m[1]! : null;
+}
+
+async function ouvrirCourant(depot: Depot): Promise<Ouvert | { erreur: string }> {
+  const demande = idDemande();
+  const id = demande ?? (await depot.lister())[0]?.id;
+  if (!id) return { projet: { ...demoLeaEtMarc(new Date()), id: nouvelId('p') }, medias: new Map(), enregistre: false };
+  const r = await depot.charger(id);
+  if (!r.ok) return { erreur: r.raison };
+  if (!demande) history.replaceState(null, '', `#/p/${id}`);
+  return { projet: r.projet, medias: await depot.mediasDuProjet(id), enregistre: true };
 }
 
 export function App() {
   const [depot, setDepot] = useState<Depot | null>(null);
-  const [erreur, setErreur] = useState('');
-  const [r, setR] = useState(route);
-  useEffect(() => { ouvrirDepot().then(setDepot, () => setErreur('Ce navigateur refuse le stockage local : les projets ne peuvent pas être enregistrés ici (navigation privée ?).')); }, []);
-  useEffect(() => { const f = () => { setR(route()); scrollTo(0, 0); }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
-  if (r.ecran === 'zero') return <PageZero />;
-  if (erreur) return <main className="m-page"><p className="m-erreur" role="alert">{erreur}</p></main>;
-  if (!depot) return <main className="m-page"><p role="status">Ouverture de vos projets…</p></main>;
-  if (r.ecran === 'monde') return <Monde depot={depot} />;
-  return r.ecran === 'projet' ? <OuvrirProjet key={r.id} id={r.id} depot={depot} /> : <Accueil depot={depot} />;
-}
+  const [ouvert, setOuvert] = useState<Ouvert | { erreur: string } | null>(null);
+  const [cle, setCle] = useState(0);
 
-function OuvrirProjet({ id, depot }: { id: string; depot: Depot }) {
-  const [etat, setEtat] = useState<{ projet: Projet; medias: Map<string, Blob> } | { erreur: string } | null>(null);
   useEffect(() => {
+    ouvrirDepot().then(setDepot, () => setOuvert({ erreur: 'Ce navigateur refuse le stockage local : rien ne pourra être enregistré ici (navigation privée ?).' }));
+  }, []);
+  useEffect(() => {
+    if (!depot) return;
     let vivant = true;
-    (async () => {
-      const r = await depot.charger(id);
-      if (!vivant) return;
-      if (!r.ok) { setEtat({ erreur: r.raison }); return; }
-      setEtat({ projet: r.projet, medias: await depot.mediasDuProjet(id) });
-    })();
+    ouvrirCourant(depot).then(o => { if (vivant) setOuvert(o); });
     return () => { vivant = false; };
-  }, [id, depot]);
-  if (!etat) return <main className="m-page"><p role="status">Ouverture du projet…</p></main>;
-  if ('erreur' in etat) return <main className="m-page"><p className="m-erreur" role="alert">{etat.erreur}</p><a className="a-btn" href="#/projets">← Mes projets</a></main>;
-  return <Constructeur initial={etat.projet} medias={etat.medias} depot={depot} retour={() => { location.hash = '#/projets'; }} />;
-}
+  }, [depot, cle]);
+  useEffect(() => {
+    const f = () => { setOuvert(null); setCle(c => c + 1); scrollTo(0, 0); };
+    addEventListener('hashchange', f);
+    return () => removeEventListener('hashchange', f);
+  }, []);
 
-function Accueil({ depot }: { depot: Depot }) {
-  const [projets, setProjets] = useState<Resume[] | null>(null);
-  const [message, setMessage] = useState('');
-  useEffect(() => { depot.lister().then(setProjets, () => setProjets([])); }, [depot]);
-
-  const creer = async (p: Projet, medias?: Map<string, Blob>) => {
-    await depot.enregistrer(p);
-    if (medias) for (const [id, b] of medias) await depot.mettreMedia(p.id, id, b);
-    location.hash = `#/projet/${p.id}`;
-  };
-  const importerFichier = async (f: File) => {
-    const r = importer(await f.text());
-    if (!r.ok) { setMessage(`Import impossible : ${r.raison}`); return; }
-    const existe = (await depot.lister()).some(x => x.id === r.projet.id);
-    const projet = existe ? { ...r.projet, id: nouvelId('p') } : r.projet;
-    if (!r.ignores.length) { await creer(projet, r.medias); return; }
-    // ce qui n'a pas pu être repris est dit avant d'ouvrir, jamais passé sous silence
-    await depot.enregistrer(projet);
-    for (const [id, b] of r.medias) await depot.mettreMedia(projet.id, id, b);
-    setProjets(await depot.lister());
-    setMessage(`« ${projet.titre} » est importé. Blocs d'AIMESTUDIO non repris (pas encore dans AIME NEXT) : ${r.ignores.join(', ')}.`);
-  };
-
-  return (
-    <main className="m-page">
-      <header className="m-tete">
-        <p className="m-marque"><a href="#/">AIME</a> <span>NEXT</span> · <a className="m-nav" href="#/monde">Le Monde AIME</a></p>
-        <h1>Mes projets</h1>
-        <p className="m-dit">Vos projets sont enregistrés dans ce navigateur. Exportez-les (.aime) pour les garder ailleurs.</p>
-      </header>
-      <div className="m-actions">
-        <button type="button" className="a-btn a-fort" onClick={() => creer(projetVide('Nouveau projet'))}>Nouveau projet</button>
-        <button type="button" className="a-btn" onClick={() => creer({ ...demoLeaEtMarc(new Date()), id: nouvelId('p'), titre: 'Léa & Marc (démonstration)' })}>Essayer la démonstration</button>
-        <label className="a-btn m-fichier">Importer un fichier
-          <input type="file" accept=".aime,.json,application/json" onChange={e => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void importerFichier(f); }} />
-        </label>
-      </div>
-      {message && <p className="m-erreur" role="alert">{message}</p>}
-      {projets === null ? <p role="status">Lecture…</p> : projets.length === 0 ? <p className="m-dit">Aucun projet pour l'instant.</p> : (
-        <ul className="m-liste">
-          {projets.map(p => <li key={p.id}><a href={`#/projet/${p.id}`}><b>{p.titre}</b><span>Modifié le {new Date(p.modifieLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })}</span></a></li>)}
-        </ul>
-      )}
-    </main>
-  );
+  if (!ouvert || !depot) return <main className="m-page"><p role="status">{ouvert && 'erreur' in ouvert ? '' : 'Ouverture…'}</p>{ouvert && 'erreur' in ouvert && <p className="m-erreur" role="alert">{ouvert.erreur}</p>}</main>;
+  if ('erreur' in ouvert) return <main className="m-page"><p className="m-erreur" role="alert">{ouvert.erreur}</p><a className="a-btn" href="#/" onClick={() => history.replaceState(null, '', '#/')}>Revenir à l’exemple</a></main>;
+  return <PageUnique key={ouvert.projet.id + ':' + cle} initial={ouvert.projet} medias={ouvert.medias} depot={depot} enregistreAuDepart={ouvert.enregistre} />;
 }

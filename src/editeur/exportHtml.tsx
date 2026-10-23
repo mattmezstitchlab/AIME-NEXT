@@ -16,11 +16,11 @@ export async function exporterHtml(projet: Projet, pageId: string, lireMedia: (i
   const urls = new Map<string, string>();
   for (const m of Object.values(projet.medias)) { const b = await lireMedia(m.id); if (b) urls.set(m.id, await enDataUrl(b)); }
   const x = { projet, urlMedia: (id: string) => urls.get(id), edition: false };
-  const grille = renderToStaticMarkup(<Page page={page} x={x} mise="grille" designSystem={projet.style.designSystem} />);
-  const colonne = renderToStaticMarkup(<Page page={page} x={x} mise="colonne" designSystem={projet.style.designSystem} />);
+  const grille = renderToStaticMarkup(<Page page={page} x={x} mise="grille" apparence={projet.style} />);
+  const colonne = renderToStaticMarkup(<Page page={page} x={x} mise="colonne" apparence={projet.style} />);
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(projet.titre)}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Outfit:wght@400..700&family=Instrument+Serif&family=Space+Grotesk:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Outfit:wght@400..700&display=swap">
 <style>body{margin:0}${CSS}.x-colonne{display:none}@media (max-width:700px){.x-grille{display:none}.x-colonne{display:block}}</style></head>
 <body><main><div class="x-grille">${grille}</div><div class="x-colonne">${colonne}</div></main></body></html>`;
 }

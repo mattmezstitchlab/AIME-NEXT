@@ -20,6 +20,7 @@ export type Commande =
   | { type: 'supprimerMedia'; id: string }
   | { type: 'renommerProjet'; titre: string }
   | { type: 'changerDesignSystem'; designSystem: string }
+  | { type: 'changerMode'; mode: 'sombre' | 'clair' | null }
   | { type: 'lot'; commandes: Commande[] };
 
 export class CommandeRefusee extends Error {
@@ -149,6 +150,12 @@ export function appliquer(p: Projet, c: Commande): Resultat {
     case 'changerDesignSystem': {
       if (!/^[a-z0-9-]{2,40}$/.test(c.designSystem)) refuser('Design System inconnu');
       return { projet: { ...p, style: { ...p.style, designSystem: c.designSystem } }, inverse: { type: 'changerDesignSystem', designSystem: p.style.designSystem } };
+    }
+    case 'changerMode': {
+      if (c.mode !== null && c.mode !== 'sombre' && c.mode !== 'clair') refuser('mode inconnu');
+      const style = { ...p.style };
+      if (c.mode === null) delete style.mode; else style.mode = c.mode;
+      return { projet: { ...p, style }, inverse: { type: 'changerMode', mode: p.style.mode ?? null } };
     }
     case 'lot': {
       let projet = p;

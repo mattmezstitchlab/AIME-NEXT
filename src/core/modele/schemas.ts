@@ -62,7 +62,8 @@ export const Projet = z.object({
   id: Id, titre: Texte(200), creeLe: DateISO, modifieLe: DateISO,
   contenus: z.record(Id, Contenu), medias: z.record(Id, Media).default({}),
   supports: z.array(Support).min(1).max(20), relations: z.array(Relation).max(2000).default([]),
-  style: z.object({ designSystem: z.string().regex(/^[a-z0-9-]{2,40}$/) }),
+  /** le style : un Design System et son mode ; sans mode, le mode propre au style (sombre pour AIME) */
+  style: z.object({ designSystem: z.string().regex(/^[a-z0-9-]{2,40}$/), mode: z.enum(['sombre', 'clair']).optional() }),
 }).superRefine((p, ctx) => {
   for (const [cle, c] of Object.entries(p.contenus)) if (c.id !== cle) ctx.addIssue({ code: 'custom', message: `contenu ${cle} : identifiant différent de sa clé` });
   for (const [cle, m] of Object.entries(p.medias)) if (m.id !== cle) ctx.addIssue({ code: 'custom', message: `média ${cle} : identifiant différent de sa clé` });

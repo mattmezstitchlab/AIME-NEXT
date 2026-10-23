@@ -39,13 +39,14 @@ Gestes : glisser pour déplacer, poignée pour redimensionner ; au clavier, flè
 
 Tests : `npm test` (cœur, « + », gestes, stockage) et `npm run parcours` (navigateur réel : glisser, onde, annuler, rechargement, aperçu, exports, téléphone).
 
-## Les trois expériences (étape 4)
+## La page unique
 
-| Adresse | Écran | Ce qu'on y fait |
-| --- | --- | --- |
-| `#/` | Page Zéro | L'orbe, puis six étapes au défilement (point, ligne, relation, grille, composition, projet). Deux actions : découvrir Le Monde AIME, reprendre son travail |
-| `#/monde` | Le Monde AIME | Trois chapitres manipulables avec les vrais blocs : la forme suit la largeur, saisi une fois vu partout, six perspectives (le cube). « Créer mon projet » transforme ce qu'on vient d'écrire en premier projet |
-| `#/projets` | Mes projets | Nouveau, démonstration, import, liste |
-| `#/projet/<id>` | Constructeur | L'édition |
+AIME tient sur une seule page (`src/app/PageUnique.tsx`) :
 
-`src/experiences` ne contient que de l'affichage : aucune règle métier, aucun stockage propre.
+1. **L'intention** : l'orbe, « Que préparez-vous ? », un nom et une date (`src/app/intention.ts`). Écrire modifie l'événement principal ; dans une page vide, la page se compose (événement, titre, compte à rebours). Les six étapes, du point au projet, sont calculées d'après le projet réel.
+2. **La page** : la grille, éditable directement. Double-clic ou Entrée pour écrire dans un bloc (`src/editeur/Direct.tsx`) ; poignée pour agrandir, la forme suit ; « + » pour ajouter ; panneau seulement sur sélection.
+3. **Comment ça marche** (`src/experiences/Decouvrir.tsx`) : le curseur de la date et le cube, montrés seulement tant que la page est l'exemple.
+
+Ouverture : `#/p/<id>`, sinon le dernier projet de l'appareil, sinon l'exemple « Léa & Marc », qui n'est enregistré qu'au premier geste. Tout le reste (Mes projets, page vide, informations, mode, grille, exports, import) est dans un seul menu.
+
+Sur téléphone : un premier toucher choisit un bloc (la page continue de défiler) ; on ne déplace qu'un bloc choisi. Pendant un glisser, la page défile près des bords.

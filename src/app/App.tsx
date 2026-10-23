@@ -1,6 +1,6 @@
 /**
- * L'application : « Mes projets » puis le Constructeur. La Page Zéro et Le Monde AIME arrivent à l'étape 4.
- * Adresses : #/ (mes projets), #/projet/<id>.
+ * L'application : la Page Zéro, Le Monde AIME, « Mes projets » et le Constructeur.
+ * Adresses : #/ (Page Zéro), #/monde, #/projets, #/projet/<id>.
  */
 import { useEffect, useState } from 'react';
 import { nouvelId, projetVide, type Projet } from '../core';
@@ -8,10 +8,17 @@ import { ouvrirDepot, type Depot, type Resume } from '../stockage/depot';
 import { importer } from '../stockage/archive';
 import { demoLeaEtMarc } from '../demo/lea-et-marc';
 import { Constructeur } from '../editeur/Constructeur';
+import { PageZero } from '../experiences/PageZero';
+import { Monde } from '../experiences/Monde';
 
-function route(): { ecran: 'accueil' } | { ecran: 'projet'; id: string } {
-  const m = /^#\/projet\/([a-z0-9][a-z0-9_-]{2,63})$/.exec(location.hash);
-  return m ? { ecran: 'projet', id: m[1]! } : { ecran: 'accueil' };
+type Route = { ecran: 'zero' } | { ecran: 'monde' } | { ecran: 'projets' } | { ecran: 'projet'; id: string };
+function route(): Route {
+  const h = location.hash;
+  const m = /^#\/projet\/([a-z0-9][a-z0-9_-]{2,63})$/.exec(h);
+  if (m) return { ecran: 'projet', id: m[1]! };
+  if (h === '#/monde') return { ecran: 'monde' };
+  if (h === '#/projets') return { ecran: 'projets' };
+  return { ecran: 'zero' };
 }
 
 export function App() {
@@ -19,9 +26,11 @@ export function App() {
   const [erreur, setErreur] = useState('');
   const [r, setR] = useState(route);
   useEffect(() => { ouvrirDepot().then(setDepot, () => setErreur('Ce navigateur refuse le stockage local : les projets ne peuvent pas être enregistrés ici (navigation privée ?).')); }, []);
-  useEffect(() => { const f = () => setR(route()); addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
+  useEffect(() => { const f = () => { setR(route()); scrollTo(0, 0); }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
+  if (r.ecran === 'zero') return <PageZero />;
   if (erreur) return <main className="m-page"><p className="m-erreur" role="alert">{erreur}</p></main>;
   if (!depot) return <main className="m-page"><p role="status">Ouverture de vos projets…</p></main>;
+  if (r.ecran === 'monde') return <Monde depot={depot} />;
   return r.ecran === 'projet' ? <OuvrirProjet key={r.id} id={r.id} depot={depot} /> : <Accueil depot={depot} />;
 }
 
@@ -38,8 +47,8 @@ function OuvrirProjet({ id, depot }: { id: string; depot: Depot }) {
     return () => { vivant = false; };
   }, [id, depot]);
   if (!etat) return <main className="m-page"><p role="status">Ouverture du projet…</p></main>;
-  if ('erreur' in etat) return <main className="m-page"><p className="m-erreur" role="alert">{etat.erreur}</p><a className="a-btn" href="#/">← Mes projets</a></main>;
-  return <Constructeur initial={etat.projet} medias={etat.medias} depot={depot} retour={() => { location.hash = '#/'; }} />;
+  if ('erreur' in etat) return <main className="m-page"><p className="m-erreur" role="alert">{etat.erreur}</p><a className="a-btn" href="#/projets">← Mes projets</a></main>;
+  return <Constructeur initial={etat.projet} medias={etat.medias} depot={depot} retour={() => { location.hash = '#/projets'; }} />;
 }
 
 function Accueil({ depot }: { depot: Depot }) {
@@ -68,7 +77,7 @@ function Accueil({ depot }: { depot: Depot }) {
   return (
     <main className="m-page">
       <header className="m-tete">
-        <p className="m-marque">AIME <span>NEXT</span></p>
+        <p className="m-marque"><a href="#/">AIME</a> <span>NEXT</span> · <a className="m-nav" href="#/monde">Le Monde AIME</a></p>
         <h1>Mes projets</h1>
         <p className="m-dit">Vos projets sont enregistrés dans ce navigateur. Exportez-les (.aime) pour les garder ailleurs.</p>
       </header>
@@ -85,7 +94,6 @@ function Accueil({ depot }: { depot: Depot }) {
           {projets.map(p => <li key={p.id}><a href={`#/projet/${p.id}`}><b>{p.titre}</b><span>Modifié le {new Date(p.modifieLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })}</span></a></li>)}
         </ul>
       )}
-      <p className="m-note">La Page Zéro et Le Monde AIME rejoindront ce Constructeur à l'étape suivante.</p>
     </main>
   );
 }

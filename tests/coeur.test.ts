@@ -76,7 +76,7 @@ describe('commandes : chaque geste a son inverse', () => {
     { type: 'remplacerContenu', contenu: { id: 'c-chateau', type: 'lieu', nom: 'Domaine des Ormes' } },
     { type: 'ajouterContenu', contenu: { id: 'c-sam', type: 'personne', nom: 'Sam' } },
     { type: 'renommerProjet', titre: 'Léa et Marc, 2027' },
-    { type: 'changerDesignSystem', designSystem: 'editorial-magazine' },
+    { type: 'changerDesignSystem', designSystem: 'aime-editorial' },
     { type: 'lot', commandes: [{ type: 'supprimerBloc', page: PAGE, id: 'b-bouton' }, { type: 'supprimerBloc', page: PAGE, id: 'b-lieu' }] },
   ];
   for (const g of gestes) test(`${g.type} puis son inverse redonne le projet d'origine`, () => {

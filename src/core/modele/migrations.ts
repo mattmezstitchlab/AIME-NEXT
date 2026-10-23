@@ -93,7 +93,7 @@ function depuisAimestudio(o: Record<string, unknown>, maintenant: Date): Ouvertu
   const titre = (P.title || 'Projet importé').slice(0, 200);
   const projet = Projet.safeParse({
     format: 'aime-projet', version: VERSION_PROJET, id: nouvelId('p'), titre, creeLe: iso, modifieLe: iso,
-    contenus, medias: {}, relations: [], style: { designSystem: 'original-iris' },
+    contenus, medias: {}, relations: [], style: { designSystem: 'aime-original' },
     supports: [{ id: nouvelId('s'), type: 'site', titre, pages: [{ id: nouvelId('pg'), titre: 'Accueil', blocs }] }],
   });
   if (!projet.success) return { ok: false, raison: 'conversion impossible : ' + projet.error.issues[0]?.message };

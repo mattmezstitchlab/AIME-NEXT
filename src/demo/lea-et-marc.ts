@@ -9,7 +9,7 @@ export function demoLeaEtMarc(maintenant = new Date('2026-10-23T12:00:00Z')): Pr
   const iso = maintenant.toISOString();
   return {
     format: 'aime-projet', version: VERSION_PROJET, id: 'p-demo-lea-et-marc', titre: 'Léa & Marc', creeLe: iso, modifieLe: iso,
-    style: { designSystem: 'original-iris' }, medias: {}, relations: [],
+    style: { designSystem: 'aime-original' }, medias: {}, relations: [],
     contenus: {
       'c-mariage': { id: 'c-mariage', type: 'evenement', titre: 'Léa & Marc', debut: '2027-06-14', lieu: 'c-chateau', programme: [
         { heure: '15:00', titre: 'Cérémonie', detail: 'à la chapelle' }, { heure: '16:30', titre: "Vin d'honneur", detail: 'sous la halle' },
